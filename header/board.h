@@ -1,29 +1,29 @@
 #ifndef BOARD_H_INCLUDED
 #define BOARD_H_INCLUDED
 
-#include "tictactoe.h"
+#define BOARD_DIMENSION 3
+#define BOARD_CELLS BOARD_DIMENSION * BOARD_DIMENSION
 
-class Player;
+#include <iostream>
+
+#include "mark.h"
 
 class Board
 {
 private:
-    char board[3][3];
-    const static int boardSize = 9;
+    char board[BOARD_DIMENSION][BOARD_DIMENSION];
 
 public:
     Board();
-    void changeBoard(int boardNum,char mark);
-    void display();
-    friend bool TicTacToe::isGameOver(Board& gameBoard,Player& playerObj);
-    friend bool TicTacToe::isOccupied(int boardNum, Board& gameBoard);
+    void changeBoard(int boardNum, char mark);
+    void displayBoard();
+    char getBoardSquare(int boardNum);
+    char getBoardSquare(int row, int column);
+    void printBoardColumn(int row);
+    void printSectionBetweenRow();
+    void resetBoard();
     ~Board();
 };
 
 #endif // BOARD_H_INCLUDED
-
-#ifndef IOSTREAM_H_INCLUDED
-#define IOSTREAM_H_INCLUDED
-#include <iostream>
-#endif // IOSTREAM_H_INCLUDED
 

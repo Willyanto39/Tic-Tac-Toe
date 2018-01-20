@@ -6,84 +6,77 @@
 #include <ctime>
 #include <string>
 
+#define NUMBER_OF_NEW_LINES 50
+
 int main()
 {
     srand(time(NULL));
 
-    Player players[2];
-    std::string playerName[2];
+    Player player[NUMBER_OF_PLAYERS];
 
-    //Prompts players to input their name
-    for(int k = 0; k < 2; k++)
+    TicTacToe ticTacToe;
+    Board gameBoard;
+
+    int playerOrder = rand() % NUMBER_OF_PLAYERS;
+    char mark[NUMBER_OF_PLAYERS] = {'O', 'X'};
+
+    for(int i = 0; i < NUMBER_OF_PLAYERS; i++)
+    {
+        std::string name;
+
+        do
+        {
+            std::cout << "Enter player" << i + 1 << "'s name [max 30 characters]: ";
+            std::getline(std::cin, name);
+            std::cin.sync();
+            std::cin.clear();
+        }while(name.length() > MAXIMUM_NAME_LENGTH);
+
+        player[i].setName(name);
+    }
+
+    //The game code
+    do
     {
         do
         {
-            std::cout << "Input player" << k+1 << " name [1 - 10 character]: ";
-            std::getline(std::cin,playerName[k]);
-        }while(playerName[k].length() < 1 || playerName[k].length() > 10);
+            for(int i = 0; i < NUMBER_OF_NEW_LINES; i++)
+            {
+                std::cout << "\n";
+            }
 
-        players[k].setName(playerName[k]);
-    }
+            gameBoard.displayBoard();
 
-    while(true)
-    {
-        //randomize player's turn
-        int whoseTurn = rand()%2 + 1;
-
-        TicTacToe tictactoe;
-        Board gameBoard;
-
-        while(!tictactoe.isDraw())
-        {
-            players[0].setMark('O');
-            players[1].setMark('X');
-            int spot;
-
-            std::cout << std::endl;
-            gameBoard.display();
+            int input;
 
             do
             {
-                std::cout << "\nIt's ";
+                std::cout << "\nIt is " << player[playerOrder].getName() << "'(s) turn." << std::endl;
+                std::cout << "Enter a number [1 - " << BOARD_CELLS << "]: ";
+                std::cin >> input;
+            }while(!ticTacToe.isAValidMove(input - 1, gameBoard));
 
-                //If player's name ends with 's'
-                if(players[whoseTurn-1].getName().find("s") == players[whoseTurn-1].getName().length()-1)
-                {
-                    std::cout << players[whoseTurn-1].getName() << "' turn.";
-                }
-                else
-                {
-                    std::cout << players[whoseTurn-1].getName() << "'s turn.";
-                }
+            gameBoard.changeBoard(input - 1, mark[playerOrder]);
+            ticTacToe.incrementTurnCount();
 
-                std::cout << " Input a number [1 - 9]: ";
-
-                std::cin >> spot;
-                std::cin.sync();
-                std::cin.clear();
-            }while(spot < 0 || spot > 9 || !tictactoe.isOccupied(spot,gameBoard));
-
-            gameBoard.changeBoard(spot,players[whoseTurn-1].getMark());
-            tictactoe.incrementTurn();
-
-            if(tictactoe.isGameOver(gameBoard,players[whoseTurn-1]))
+            if(ticTacToe.isWon(gameBoard, player[playerOrder]))
             {
+                ticTacToe.showWinner(player[playerOrder]);
                 break;
             }
-            else
-            {
-                whoseTurn = tictactoe.togglePlayer(whoseTurn);
-            }
 
-        }
+            ticTacToe.isDraw();
+            playerOrder = ticTacToe.togglePlayer(playerOrder);
+        }while(!ticTacToe.getGameIsDrawn() && !ticTacToe.getGameIsWon());
 
-        whoseTurn = tictactoe.togglePlayer(whoseTurn);
+        gameBoard.displayBoard();
+        gameBoard.resetBoard();
+        ticTacToe.resetGame();
 
-        if(!tictactoe.playAgain())
-        {
-            break;
-        }
-    }
+        //give the first turn to the player who lost the game
+        ticTacToe.togglePlayer(playerOrder);
+    }while(ticTacToe.playAgain());
+
 
     return 0;
 }

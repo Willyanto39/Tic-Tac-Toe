@@ -1,27 +1,26 @@
 #include "header/tictactoe.h"
-#include "header/board.h"
-#include "header/player.h"
 
 TicTacToe::TicTacToe()
 {
-    turn = 0;
+    resetGame();
 }
 
 bool TicTacToe::isDraw()
 {
-    if(turn == 9)
+    if(turnCount == BOARD_CELLS)
     {
-        std::cout << "It's a draw" << std::endl;
+        std::cout << "\n\tIt's a draw\n" << std::endl;
+        gameIsDrawn = true;
         return true;
     }
 
     return false;
 }
 
-//check if a square is already occupied by 'X' or 'O'
-bool TicTacToe::isOccupied(int boardNum, Board& gameBoard)
+bool TicTacToe::isAnOccupiedSquare(int boardNum, Board& gameBoard)
 {
-    if(gameBoard.board[(boardNum-1)/3][(boardNum-1)%3] == 'X' || gameBoard.board[(boardNum-1)/3][(boardNum-1)%3] == 'O')
+    //board square is occupied by either 'O' or 'X'
+    if(gameBoard.getBoardSquare(boardNum) == 'O' || gameBoard.getBoardSquare(boardNum) == 'X')
     {
         return false;
     }
@@ -29,12 +28,24 @@ bool TicTacToe::isOccupied(int boardNum, Board& gameBoard)
     return true;
 }
 
+bool TicTacToe::isAValidMove(int boardNum, Board& gameBoard)
+{
+    //user inputs invalid number
+    if(boardNum > BOARD_CELLS - 1 || boardNum < 0)
+    {
+        return false;
+    }
+
+    return isAnOccupiedSquare(boardNum, gameBoard);
+}
+
+//asks the player for another game
 bool TicTacToe::playAgain()
 {
     char anotherGame;
 
     do{
-        std::cout << "Play Again [y/n]?";
+        std::cout << "\nPlay Again [y/n]?";
         std::cin >> anotherGame;
         std::cin.sync();
         std::cin.clear();
@@ -42,6 +53,7 @@ bool TicTacToe::playAgain()
 
     if(anotherGame == 'Y' || anotherGame == 'y')
     {
+        resetGame();
         return true;
     }
 
@@ -50,15 +62,15 @@ bool TicTacToe::playAgain()
 
 int TicTacToe::togglePlayer(int turn)
 {
-    if(turn == 1)
+    if(turn == O)
     {
-        return 2;
+        return X;
     }
 
-    return 1;
+    return O;
 }
 
-bool TicTacToe::checkBoard(char ch1, char ch2, char ch3)
+bool TicTacToe::checkCharacter(char ch1, char ch2, char ch3)
 {
     if((ch1 == ch2) && (ch1 == ch3))
     {
@@ -68,57 +80,82 @@ bool TicTacToe::checkBoard(char ch1, char ch2, char ch3)
     return false;
 }
 
-bool TicTacToe::isGameOver(Board& gameBoard,Player& playerObj)
+bool TicTacToe::checkDiagonal(Board& gameBoard)
 {
-    //Check the column
-    for(int i = 0; i < 3; i++)
+   if(checkCharacter(gameBoard.getBoardSquare(0, 0), gameBoard.getBoardSquare(1, 1), gameBoard.getBoardSquare(2, 2)))
+   {
+       return true;
+   }
+
+   if(checkCharacter(gameBoard.getBoardSquare(0, 2), gameBoard.getBoardSquare(1, 1), gameBoard.getBoardSquare(2, 0)))
+   {
+       return true;
+   }
+
+   return false;
+}
+
+bool TicTacToe::checkHorizontal(Board& gameBoard)
+{
+    for(int i = 0; i < BOARD_DIMENSION; i++)
     {
-        if(checkBoard(gameBoard.board[i][0],gameBoard.board[i][1],gameBoard.board[i][2]))
+       if(checkCharacter(gameBoard.getBoardSquare(i, 0), gameBoard.getBoardSquare(i, 1), gameBoard.getBoardSquare(i, 2)))
+       {
+           return true;
+       }
+    }
+
+    return false;
+}
+
+bool TicTacToe::checkVertical(Board& gameBoard)
+{
+    for(int i = 0; i < BOARD_DIMENSION; i++)
+    {
+        if(checkCharacter(gameBoard.getBoardSquare(0, i), gameBoard.getBoardSquare(1, i), gameBoard.getBoardSquare(2, i)))
         {
-            std::cout << playerObj.getName() << " won." << std::endl;
-            gameBoard.display();
             return true;
         }
     }
 
-    //Check the row
-    for(int i = 0; i < 3; i++)
-    {
-        if(checkBoard(gameBoard.board[0][i],gameBoard.board[1][i],gameBoard.board[2][i]))
-        {
-            std::cout << playerObj.getName() << " won." << std::endl;
-            gameBoard.display();
-            return true;
-        }
-    }
+    return false;
+}
 
-    //Check diagonals
-    if(checkBoard(gameBoard.board[0][0],gameBoard.board[1][1],gameBoard.board[2][2]))
+bool TicTacToe::isWon(Board& gameBoard,Player& playerObj)
+{
+    if(checkDiagonal(gameBoard) || checkHorizontal(gameBoard) || checkVertical(gameBoard))
     {
-        std::cout << playerObj.getName() << " won." << std::endl;
-        gameBoard.display();
-        return true;
-    }
-
-    //Check diagonals
-    if(checkBoard(gameBoard.board[0][2],gameBoard.board[1][1],gameBoard.board[2][0]))
-    {
-        std::cout << playerObj.getName() << " won." << std::endl;
-        gameBoard.display();
+        gameIsWon = true;
         return true;
     }
 
     return false;
 }
 
-int TicTacToe::getTurn()
+void TicTacToe::showWinner(Player& player)
 {
-    return turn;
+    std::cout << "\n\t" << player.getName() << " won\n" << std::endl;
 }
 
-void TicTacToe::incrementTurn()
+void TicTacToe::incrementTurnCount()
 {
-    turn++;
+    turnCount++;
+}
+
+bool TicTacToe::getGameIsDrawn()
+{
+    return gameIsDrawn;
+}
+
+bool TicTacToe::getGameIsWon()
+{
+    return gameIsWon;
+}
+
+void TicTacToe::resetGame()
+{
+    turnCount = 0;
+    gameIsDrawn = gameIsWon = false;
 }
 
 TicTacToe::~TicTacToe()

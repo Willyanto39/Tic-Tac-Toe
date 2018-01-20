@@ -5,9 +5,9 @@ Player::Player()
     mark = ' ';
 }
 
-void Player::setMark(char mark)
+void Player::setMark(char playerMark)
 {
-    this->mark = mark;
+    mark = playerMark;
 }
 
 void Player::setName(std::string playerName)

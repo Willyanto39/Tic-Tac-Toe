@@ -1,25 +1,39 @@
 #ifndef TICTACTOE_H_INCLUDED
 #define TICTACTOE_H_INCLUDED
 
-class Player;
+#define NUMBER_OF_PLAYERS 2
+#define MAXIMUM_NAME_LENGTH 30
 
-class Board;
+#include <iostream>
+
+#include "board.h"
+#include "mark.h"
+#include "player.h"
 
 class TicTacToe
 {
 private:
-    int turn;
+    int turnCount;
+    bool gameIsWon;
+    bool gameIsDrawn;
 
 public:
     TicTacToe();
-    int getTurn();
-    void incrementTurn();
+    void incrementTurnCount();
     bool isDraw();
-    bool isGameOver(Board& gameBoard,Player& playerObj);
-    bool checkBoard(char ch1, char ch2, char ch3);
+    bool isWon(Board& gameBoard, Player& playerObj);
     bool playAgain();
     int togglePlayer(int turn);
-    bool isOccupied(int boardNum, Board& gameBoard);
+    bool checkHorizontal(Board& gameBoard);
+    bool checkVertical(Board& gameBoard);
+    bool checkDiagonal(Board& gameBoard);
+    bool isAnOccupiedSquare(int boardNum, Board& gameBoard);
+    bool isAValidMove(int boardNum, Board& gameBoard);
+    bool checkCharacter(char ch1, char ch2, char ch3);
+    void showWinner(Player& player);
+    bool getGameIsWon();
+    bool getGameIsDrawn();
+    void resetGame();
     ~TicTacToe();
 };
 
