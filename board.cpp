@@ -2,39 +2,52 @@
 
 Board::Board()
 {
-    for(int i = 0; i < boardSize; i++)
-    {
-        board[i/3][i%3] = '1' + i;
-    }
+    resetBoard();
 }
 
 void Board::changeBoard(int boardNum, char mark)
 {
-    board[(boardNum-1)/3][(boardNum-1)%3] = mark;
+    board[boardNum / BOARD_DIMENSION][boardNum % BOARD_DIMENSION] = mark;
 }
 
-void Board::display()
+void Board::displayBoard()
 {
-    for(int i = 0; i < boardSize; i++)
+    for(int i = 0; i < BOARD_DIMENSION; i++)
     {
-        if(i % 3 == 1)
-        {
-            std::cout << "|" << board[i/3][i%3] << "|";
-        }
-        else if(i % 3 == 2)
-        {
-            std::cout << board[i/3][i%3];
-        }
-        else
-        {
-            std::cout << "\t" << board[i/3][i%3];
-        }
+           printBoardColumn(i);
 
-        if( (i + 1) % 3 == 0)
-        {
-            std::cout << std::endl;
-            std::cout << "\t-+-+-" << std::endl;
-        }
+           if(i < BOARD_DIMENSION - 1)
+           {
+               printSectionBetweenRow();
+           }
+    }
+}
+
+void Board::printBoardColumn(int row)
+{
+    std::cout << "\t " << board[row][0] << " | " << board[row][1] << " | " << board[row][2] << std::endl;
+}
+
+void Board::printSectionBetweenRow()
+{
+   std::cout << "\t---+---+---" << std::endl;
+}
+
+char Board::getBoardSquare(int boardNum)
+{
+    return board[boardNum / BOARD_DIMENSION][boardNum % BOARD_DIMENSION];
+}
+
+char Board::getBoardSquare(int row, int column)
+{
+    return board[row][column];
+}
+
+void Board::resetBoard()
+{
+    for(int i = 0; i < BOARD_CELLS; i++)
+    {
+        board[i / BOARD_DIMENSION][i % BOARD_DIMENSION] = '1' + i;
     }
 }
 
